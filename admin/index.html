@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @font-face {
+            font-family: 'Rubik';
+            src: url('Rubik-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        body {
+            font-family: 'Rubik', sans-serif;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .logo {
+            display: block;
+            margin: 0 auto;
+            width: 100px; /* Adjust the width as needed */
+            animation: slideIn 1s ease-in-out;
+        }
+        .password-container {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        #loginButton {
+            display: block;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            background-color: #5fe17b;
+            color: #ffffff;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            font-weight: 500;
+            width: 100%;
+            border-radius: 0.5rem;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            margin-top: 1rem;
+            animation: fadeInUp 1s ease-in-out;
+        }
+
+        #loginButton:hover {
+            background-color: #00b815;
+        }
+        #privacyPolicyButton {
+            margin-top: 10px; /* Add margin-top */
+            display: block;
+            text-align: center;
+            text-decoration: none; /* Remove underline */
+            color: #4F46E5;
+            animation: fadeInUp 1s ease-in-out;
+        }
+        #privacyPolicyButton:hover {
+            text-decoration: underline; /* Add underline on hover */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="/assets/logo.png" alt="Logo" class="logo">
+        <h2>Bienvenido</h2>
+        <form id="loginForm">
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="password-container">
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <span class="toggle-password" id="togglePassword">
+                    <i class="fas fa-eye"></i>
+                </span>
+            </div>
+            <button type="submit" id="loginButton">
+                <span id="buttonText">Login</span>
+                <span id="loadingText" style="display: none;">...</span>
+            </button>
+        </form>
+        <a href="privacy.html" id="privacyPolicyButton">Privacy Policy</a>
+        <p id="error-message" class="error-message"></p>
+    </div>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQc9pn57NJrDjxj3p-LabzsK0GzI6riV0",
+            authDomain: "users-d89ac.firebaseapp.com",
+            databaseURL: "https://users-d89ac-default-rtdb.firebaseio.com",
+            projectId: "users-d89ac",
+            storageBucket: "users-d89ac.appspot.com",
+            messagingSenderId: "96489424350",
+            appId: "1:96489424350:web:127c1c9f3887dd3461094f",
+            measurementId: "G-G0RYXYGFS8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            const loginButton = document.getElementById('loginButton');
+            const buttonText = document.getElementById('buttonText');
+            const loadingText = document.getElementById('loadingText');
+
+            buttonText.style.display = 'none';
+            loadingText.style.display = 'inline';
+            loginButton.disabled = true;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const userRef = ref(database, `Admins/${user.uid}`);
+                    return get(userRef).then((snapshot) => {
+                        if (snapshot.exists()) {
+                            console.log('Logged in:', user);
+                            errorMessage.textContent = ''; // Clear any previous error messages
+                            localStorage.setItem('loggedIn', 'true'); // Remember login state
+                            window.location.href = 'dashboard.html'; // Redirect to the dashboard page
+                        } else {
+                            throw new Error('You are not an admin');
+                        }
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error logging in:', error);
+                    errorMessage.textContent = 'Error logging in: ' + error.message;
+                    loadingText.style.display = 'none';
+                    buttonText.style.display = 'inline';
+                    loginButton.disabled = false;
+                });
+        });
+
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    </script>
+</body>
+</html>

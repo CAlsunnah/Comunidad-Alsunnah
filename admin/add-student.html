@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Student</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @font-face {
+            font-family: 'Rubik';
+            src: url('Rubik-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        body {
+            width: 100%;
+            font-family: 'Rubik', sans-serif;
+            background-color: #e0f7e9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .content {
+            display: flex;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .form-container h2 {
+            margin-bottom: 1rem;
+            color: #388E3C;
+        }
+        .form-container input, .form-container select {
+            width: calc(100% - 2rem); /* Uniform width for all inputs and selects */
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+            font-size: 1rem;
+        }
+        .form-container button {
+            padding: 0.75rem 1.5rem;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+        }
+        .form-container button:hover {
+            background-color: #388E3C;
+        }
+        .form-container .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Align items to the left */
+        }
+        .form-container .form-group:first-child {
+            align-items: center; /* Center the first form-group */
+        }
+        .form-container .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #388E3C;
+            text-align: left; /* Align labels to the left */
+            display: flex;
+            align-items: center;
+        }
+        .form-container .form-group label[for="studentPic"] {
+            text-align: center; /* Center the "Profile Picture" label */
+        }
+        .form-container .form-group label i {
+            margin-right: 0.5rem; /* Add space between icon and text */
+        }
+        .form-container .form-group input[type="file"] {
+            display: none; /* Hide the default file input */
+        }
+        .form-container .form-group .custom-file-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #f1f1f1;
+            cursor: pointer;
+            position: relative;
+        }
+        .form-container .form-group .custom-file-upload img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-preview {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .remove-img-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #ff0000;
+            display: none; /* Hide by default */
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        .remove-img-button:hover {
+            color: #ff4d4d;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .custom-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .dialog-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .student-preview {
+            display: flex;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            gap: 1rem;
+        }
+
+        .preview-image {
+            
+        }
+
+        .preview-image img {
+            width: 130px;
+            height: 170px;
+            border-radius: 10px;
+            object-fit: cover;
+            background-color: #88F2A0;
+        }
+
+        .preview-info {
+            flex: 1;
+        }
+
+        .preview-info h2 {
+            color: #388E3C;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .info-item {
+            text-align: left;
+        }
+
+        .info-item strong {
+            display: block;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-item span {
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .confirmation-dialog {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .confirmation-dialog h3 {
+            color: #2E7D32;
+            margin-bottom: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .button-group button {
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .confirm-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .cancel-btn {
+            background-color: white;
+            color: #f44336;
+            border: 2px solid #f44336;
+        }
+
+        .confirm-btn:hover {
+            background-color: #388E3C;
+        }
+
+        .cancel-btn:hover {
+            background-color: #f44336;
+            color: white;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .info-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-list .info-item {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-list .info-item strong {
+            display: block;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-list .info-item span {
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .info-list .info-item .password-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .info-list .info-item button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #388E3C;
+            margin-left: 0.5rem;
+        }
+
+        .info-list .info-item button:hover {
+            color: #4CAF50;
+        }
+
+        .profile-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .profile-buttons button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .profile-buttons button:hover {
+            background-color: #388E3C;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="form-container">
+            <h2>Add New Student</h2>
+            <form id="addStudentForm">
+                <div class="form-group">
+                    <label for="studentPic"><i class="fas fa-camera"></i> Profile Picture</label>
+                    <div class="custom-file-upload" >
+                        <div id="profilePreview">
+                        <img src="/assets/pic.png" alt="Profile Picture" id="profilePicPreview">
+                        </div>
+                        <div type="button" class="remove-img-button" id="removeImgButton">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="studentPic" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="firstName" style="margin-top: 40px;"><i class="fas fa-user"></i> First Name *</label>
+                    <input type="text" id="firstName" placeholder="First Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName"><i class="fas fa-user"></i> Last Name *</label>
+                    <input type="text" id="lastName" placeholder="Last Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="firstNameAr"><i class="fas fa-user"></i> First Name (Arabic) *</label>
+                    <input type="text" id="firstNameAr" placeholder="First Name (Arabic)" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastNameAr"><i class="fas fa-user"></i> Last Name (Arabic) *</label>
+                    <input type="text" id="lastNameAr" placeholder="Last Name (Arabic)" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender"><i class="fas fa-venus-mars"></i> Gender *</label>
+                    <select id="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dob"><i class="fas fa-calendar-alt"></i> Date of Birth *</label>
+                    <input type="date" id="dob" required>
+                </div>
+                <div class="form-group">
+                    <label for="class"><i class="fas fa-school"></i> Class *</label>
+                    <select id="class" required>
+                        <option value="">Select Class</option>
+                        <!-- Class options will be populated here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label for="phone"><i class="fas fa-phone"></i> Phone</label>
+                    <input type="text" id="phone" placeholder="Phone">
+                </div>
+                <button type="submit">Add Student</button>
+            </form>
+        </div>
+    </div>
+    <div class="custom-dialog" id="customDialog">
+        <div class="dialog-card">
+            <div class="student-preview">
+                <div class="preview-image">
+                    <img src="/assets/pic.png" alt="Profile Picture" id="dialogProfilePic">
+                    <div class="profile-buttons">
+                        <button id="qrCodeButton"><i class="fas fa-qrcode"></i> QR</button>
+                        <button id="downloadCardButton"><i class="fas fa-download"></i> Download</button>
+                    </div>
+                </div>
+                <div class="preview-info">
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <strong>اسم الطالب</strong>
+                            <span id="dialogStudentName"></span>
+                        </li>
+                        <li class="info-item">
+                            <strong>القسم</strong>
+                            <span id="dialogClass"></span>
+                        </li>
+                        <li class="info-item">
+                            <strong>البريد الإلكتروني المدرسي</strong>
+                            <span id="dialogSchoolEmail" style="direction: ltr;"></span>
+                        </li>
+                        <li class="info-item">
+                            <strong>كلمة السر</strong>
+                            <div class="password-container">
+                                <span id="dialogPassword" style="font-family: monospace; letter-spacing: 1px;"></span>
+                                <button id="copyPasswordButton" title="Copy Password"><i class="fas fa-copy"></i></button>
+                                <button id="regeneratePasswordButton" title="Regenerate Password"><i class="fas fa-sync-alt"></i></button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="confirmation-dialog">
+                <h3>هل أنت متأكد من إضافة هذا الطالب؟</h3>
+                <div class="button-group">
+                    <button class="confirm-btn" id="confirmButton">نعم، أضف الطالب</button>
+                    <button class="cancel-btn" id="cancelButton">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-storage.js";
+        import QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js";
+        import html2canvas from "https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.7/dist/html2canvas.min.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQc9pn57NJrDjxj3p-LabzsK0GzI6riV0",
+            authDomain: "users-d89ac.firebaseapp.com",
+            databaseURL: "https://users-d89ac-default-rtdb.firebaseio.com",
+            projectId: "users-d89ac",
+            storageBucket: "users-d89ac.appspot.com",
+            messagingSenderId: "96489424350",
+            appId: "1:96489424350:web:127c1c9f3887dd3461094f",
+            measurementId: "G-G0RYXYGFS8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+        const storage = getStorage(app);
+
+        // Fetch class options for the class dropdown
+        const fetchClassOptions = () => {
+            const classSelect = document.getElementById('class');
+            const classRef = ref(database, 'classes');
+            
+            // Clear existing options except the first one
+            while (classSelect.options.length > 1) {
+                classSelect.remove(1);
+            }
+
+            get(classRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const classData = childSnapshot.val();
+                        if (classData['class name']) { // Ensure class name exists
+                            const option = document.createElement('option');
+                            option.value = childSnapshot.key;
+                            option.textContent = classData['class name'];
+                            classSelect.appendChild(option);
+                        }
+                    });
+                } else {
+                    console.log("No classes found in database");
+                }
+            }).catch((error) => {
+                console.error("Error fetching classes:", error);
+            });
+        };
+
+        // Initial fetch of class options
+        fetchClassOptions();
+
+        // Add event listener to the add student form
+        document.getElementById('addStudentForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const studentPic = document.getElementById('studentPic').files[0];
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const firstNameAr = document.getElementById('firstNameAr').value;
+            const lastNameAr = document.getElementById('lastNameAr').value;
+            const gender = document.getElementById('gender').value;
+            const dob = document.getElementById('dob').value;
+            const studentClass = document.getElementById('class').value;
+            const email = document.getElementById('email').value || '';
+            const phone = document.getElementById('phone').value || '';
+
+            const schoolEmail = generateSchoolEmail(firstName, lastName);
+            const password = generatePassword();
+
+            document.getElementById('dialogProfilePic').src = studentPic ? URL.createObjectURL(studentPic) : '/assets/pic.png';
+            document.getElementById('dialogStudentName').textContent = `${firstName} ${lastName}`;
+            
+            // Fetch class name from database
+            const classRef = ref(database, `classes/${studentClass}/class name`);
+            get(classRef).then((snapshot) => {
+                const className = snapshot.exists() ? snapshot.val() : studentClass;
+                document.getElementById('dialogClass').textContent = className;
+            }).catch((error) => {
+                console.error("Error fetching class name:", error);
+                document.getElementById('dialogClass').textContent = studentClass;
+            });
+
+            document.getElementById('dialogSchoolEmail').textContent = schoolEmail;
+            document.getElementById('dialogPassword').textContent = password;
+            
+            document.getElementById('customDialog').style.display = 'flex';
+        });
+
+        document.getElementById('confirmButton').addEventListener('click', () => {
+            document.getElementById('customDialog').style.display = 'none';
+            const studentPic = document.getElementById('studentPic').files[0];
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const firstNameAr = document.getElementById('firstNameAr').value;
+            const lastNameAr = document.getElementById('lastNameAr').value;
+            const gender = document.getElementById('gender').value;
+            const dob = document.getElementById('dob').value;
+            const studentClass = document.getElementById('class').value;
+            const email = document.getElementById('email').value || '';
+            const phone = document.getElementById('phone').value || '';
+
+            const newStudentRef = ref(database, 'users').push();
+            const studentId = newStudentRef.key;
+
+            if (studentPic) {
+                const storageReference = storageRef(storage, `students/${studentId}/${studentPic.name}`);
+                uploadBytes(storageReference, studentPic).then((snapshot) => {
+                    getDownloadURL(snapshot.ref).then((downloadURL) => {
+                        set(newStudentRef, {
+                            'first name': firstName,
+                            'last name': lastName,
+                            'first name ar': firstNameAr,
+                            'last name ar': lastNameAr,
+                            'gender': gender,
+                            'dob': dob,
+                            'class': studentClass,
+                            'email': email,
+                            'phone': phone,
+                            'pic': downloadURL,
+                            'school_email': schoolEmail,
+                            'password': password // Consider hashing this before storing
+                        }).then(() => {
+                            alert('Student added successfully!');
+                            document.getElementById('addStudentForm').reset();
+                            document.getElementById('profilePicPreview').src = '/assets/pic.png';
+                            document.getElementById('removeImgButton').style.display = 'none';
+                        }).catch((error) => {
+                            console.error('Error adding student:', error);
+                        });
+                    });
+                }).catch((error) => {
+                    console.error('Error uploading picture:', error);
+                });
+            } else {
+                set(newStudentRef, {
+                    'first name': firstName,
+                    'last name': lastName,
+                    'first name ar': firstNameAr,
+                    'last name ar': lastNameAr,
+                    'gender': gender,
+                    'dob': dob,
+                    'class': studentClass,
+                    'email': email,
+                    'phone': phone,
+                    'pic': '/assets/pic.png', // Default picture
+                    'school_email': schoolEmail,
+                    'password': password // Consider hashing this before storing
+                }).then(() => {
+                    alert('Student added successfully!');
+                    document.getElementById('addStudentForm').reset();
+                    document.getElementById('profilePicPreview').src = '/assets/pic.png';
+                    document.getElementById('removeImgButton').style.display = 'none';
+                }).catch((error) => {
+                    console.error('Error adding student:', error);
+                });
+            }
+        });
+
+        // Function to generate school email
+        function generateSchoolEmail(firstName, lastName) {
+            const firstInitial = firstName.charAt(0).toUpperCase();
+            const lastNameProcessed = lastName.toLowerCase();
+            const randomNum = Math.floor(Math.random() * 900) + 100; // Generate random 3-digit number
+            return `${firstInitial}.${lastNameProcessed}${randomNum}@alsunnah.es`;
+        }
+
+        // Function to generate random password
+        function generatePassword() {
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const numbers = '0123456789';
+            const all = uppercase + lowercase + numbers;
+            
+            let password = '';
+            // Ensure at least one of each type
+            password += uppercase[Math.floor(Math.random() * uppercase.length)];
+            password += lowercase[Math.floor(Math.random() * lowercase.length)];
+            password += numbers[Math.floor(Math.random() * numbers.length)];
+            
+            // Fill rest of password
+            for(let i = password.length; i < 8; i++) {
+                password += all[Math.floor(Math.random() * all.length)];
+            }
+            
+            // Shuffle the password
+            return password.split('').sort(() => Math.random() - 0.5).join('');
+        }
+
+        // Preview profile picture
+        document.getElementById('studentPic').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('profilePicPreview').src = e.target.result;
+                    document.getElementById('removeImgButton').style.display = 'inline';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Remove profile picture
+        document.getElementById('removeImgButton').addEventListener('click', () => {
+            document.getElementById('studentPic').value = '';
+            document.getElementById('profilePicPreview').src = '/assets/pic.png';
+            document.getElementById('removeImgButton').style.display = 'none';
+        });
+
+        // Trigger file input when clicking on the custom file upload
+        document.getElementById('profilePreview').addEventListener('click', () => {
+            document.getElementById('studentPic').click();
+        });
+
+        // Copy password to clipboard
+        document.getElementById('copyPasswordButton').addEventListener('click', () => {
+            const password = document.getElementById('dialogPassword').textContent;
+            navigator.clipboard.writeText(password).then(() => {
+                const copyButton = document.getElementById('copyPasswordButton');
+                const originalIcon = copyButton.innerHTML;
+                copyButton.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    copyButton.innerHTML = originalIcon;
+                }, 2000); // Change back after 2 seconds
+            }).catch((error) => {
+                console.error('Error copying password:', error);
+            });
+        });
+
+        // Regenerate password
+        document.getElementById('regeneratePasswordButton').addEventListener('click', () => {
+            const newPassword = generatePassword();
+            document.getElementById('dialogPassword').textContent = newPassword;
+        });
+
+        // Generate QR code
+        document.getElementById('qrCodeButton').addEventListener('click', () => {
+            const studentName = document.getElementById('dialogStudentName').textContent;
+            const schoolEmail = document.getElementById('dialogSchoolEmail').textContent;
+            const qrData = `Name: ${studentName}\nEmail: ${schoolEmail}`;
+            QRCode.toDataURL(qrData, { width: 200, height: 200 }, (err, url) => {
+                if (err) {
+                    console.error('Error generating QR code:', err);
+                    return;
+                }
+                const qrWindow = window.open();
+                qrWindow.document.write(`<img src="${url}" alt="QR Code">`);
+            });
+        });
+
+        // Download card as PNG
+        document.getElementById('downloadCardButton').addEventListener('click', () => {
+            const dialogCard = document.querySelector('.dialog-card');
+            html2canvas(dialogCard).then((canvas) => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'student-card.png';
+                link.click();
+            }).catch((error) => {
+                console.error('Error downloading card as PNG:', error);
+            });
+        });
+    </script>
+</body>
+</html>
