@@ -14,6 +14,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Loading Splash Screen -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="loader">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading...</p>
+    </div>
+  </div>
+
   <!-- Success Dialog -->
   <div class="dialog" id="success-dialog">
     <div class="dialog-content">
@@ -293,6 +301,10 @@
 
   // Fetch Data from Firebase
   document.addEventListener("DOMContentLoaded", async () => {
+    // Show Loading Screen
+    const loadingScreen = document.getElementById("loading-screen");
+    loadingScreen.style.display = "flex";
+
     await checkFirebaseConnection();
 
     // Fetch Classes Data
@@ -332,6 +344,11 @@
         updateTotalTeachers(0); // No teachers found
       }
     });
+
+    // Hide Loading Screen After Data is Loaded
+    setTimeout(() => {
+      loadingScreen.style.display = "none";
+    }, 1000); // Simulate a delay for better UX
 
     // Bind Event Listeners
     bindEventListeners();
@@ -780,6 +797,5 @@
     });
   }
 </script>
-	
 </body>
 </html>
