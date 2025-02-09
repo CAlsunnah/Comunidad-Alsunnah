@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin School Dashboard</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- CryptoJS for AES Encryption -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Success Dialog -->
+  <div class="dialog" id="success-dialog">
+    <div class="dialog-content">
+      <h3>Student Added Successfully!</h3>
+      <p><strong>School Email:</strong> <span id="success-email"></span> 
+        <button class="copy-btn" onclick="copyToClipboard('success-email')">Copy Email</button>
+      </p>
+      <p><strong>Password:</strong> <span id="success-password"></span> 
+        <button class="copy-btn" onclick="copyToClipboard('success-password')">Copy Password</button>
+      </p>
+      <button class="close-dialog" id="close-success-dialog">Close</button>
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>Admin Panel</h2>
+      <ul>
+        <li><a href="#" id="dashboard-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="#" id="students-link"><i class="fas fa-users"></i> Students</a></li>
+        <li><a href="#" id="teachers-link"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
+        <li><a href="#" id="classes-link"><i class="fas fa-school"></i> Classes</a></li>
+        <li><a href="#"><i class="fas fa-book"></i> Courses</a></li>
+        <li><a href="#"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+        <li><a href="#"><i class="fas fa-chart-line"></i> Reports</a></li>
+        <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Dashboard Page -->
+      <div id="dashboard-page">
+        <div class="header">
+          <h1>Dashboard</h1>
+          <div class="user-info">
+            <div class="new-button" id="new-button">
+              <i class="fas fa-plus"></i>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu">
+              <ul>
+                <li id="add-student-btn"><i class="fas fa-user-graduate"></i> Add Student</li>
+                <li id="add-teacher-btn"><i class="fas fa-chalkboard-teacher"></i> Add Teacher</li>
+                <li id="add-class-btn"><i class="fas fa-school"></i> Add Class</li>
+              </ul>
+            </div>
+            <img src="https://via.placeholder.com/45" alt="User Avatar">
+            <span>John Doe</span>
+          </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="cards">
+          <div class="card">
+            <i class="fas fa-user-graduate"></i>
+            <h3>Total Students</h3>
+            <p id="total-students">0</p>
+          </div>
+          <div class="card">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <h3>Total Teachers</h3>
+            <p id="total-teachers">0</p>
+          </div>
+          <div class="card">
+            <i class="fas fa-book-open"></i>
+            <h3>Total Classes</h3>
+            <p id="total-classes">0</p>
+          </div>
+        </div>
+
+        <!-- Recent Students List -->
+        <div class="student-list-section">
+          <h3>Recent Students <button class="see-more-btn" id="see-more-btn">See More</button></h3>
+          <table id="recent-student-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Class</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="3">No students found.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty Space (Will Be Replaced Later) -->
+        <div class="empty-space" style="height: 300px;"></div>
+
+        <!-- Export Button -->
+        <div class="export-section">
+          <button class="export-btn" id="export-btn">Export to CSV</button>
+        </div>
+      </div>
+
+      <!-- Student List Page -->
+      <div id="student-list-page" style="display: none;">
+        <button class="back-to-dashboard" id="back-to-dashboard">Back to Dashboard</button>
+        <h3>Student List</h3>
+        <div class="search-bar">
+          <input type="text" id="student-search" placeholder="Search students...">
+          <i class="fas fa-search"></i>
+        </div>
+        <table id="student-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Class</th>
+              <th>Gender</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5">No students found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Teacher List Page -->
+      <div id="teacher-list-page" style="display: none;">
+        <button class="back-to-dashboard" id="back-to-dashboard-teacher">Back to Dashboard</button>
+        <h3>Teacher List</h3>
+        <div class="search-bar">
+          <input type="text" id="teacher-search" placeholder="Search teachers...">
+          <i class="fas fa-search"></i>
+        </div>
+        <table id="teacher-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Classes</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4">No teachers found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Classes List Page -->
+      <div id="class-list-page" style="display: none;">
+        <button class="back-to-dashboard" id="back-to-dashboard-class">Back to Dashboard</button>
+        <h3>Class List</h3>
+        <div class="search-bar">
+          <input type="text" id="class-search" placeholder="Search classes...">
+          <i class="fas fa-search"></i>
+        </div>
+        <table id="class-table">
+          <thead>
+            <tr>
+              <th>Class Name</th>
+              <th>Number of Students</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="3">No classes found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Add New Student</h3>
+        <button id="close-modal">&times;</button>
+      </div>
+      <form class="modal-form" id="modal-form">
+        <label for="first-name">First Name (English)</label>
+        <input type="text" id="first-name" required>
+
+        <label for="first-name-ar">First Name (Arabic)</label>
+        <input type="text" id="first-name-ar" required>
+
+        <label for="last-name">Last Name (English)</label>
+        <input type="text" id="last-name" required>
+
+        <label for="last-name-ar">Last Name (Arabic)</label>
+        <input type="text" id="last-name-ar" required>
+
+        <label for="gender">Gender</label>
+        <select id="gender" required>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+
+        <label for="class">Class</label>
+        <select id="class" required>
+          <option value="">Select Class</option>
+        </select>
+
+        <!-- Combined Date of Birth Field -->
+        <label for="date-of-birth">Date of Birth</label>
+        <div class="date-input-group">
+          <input type="number" id="day" min="1" max="31" placeholder="Day" required>
+          <input type="number" id="mon" min="1" max="12" placeholder="Month" required>
+          <input type="number" id="year" min="1900" max="2023" placeholder="Year" required>
+        </div>
+
+        <label for="email">Personal Email (Optional)</label>
+        <input type="email" id="email">
+
+        <label for="phone">Phone Number (Optional)</label>
+        <input type="text" id="phone">
+
+        <div class="error-message" id="error-message"></div>
+
+        <div class="modal-footer">
+          <button type="button" class="cancel" id="cancel-modal">Cancel</button>
+          <button type="submit" class="add" id="add-modal">Add</button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loading-spinner" style="display: none;">
+          <i class="fas fa-circle-notch fa-spin"></i> Loading...
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Messages -->
+  <div id="toast-container" style="position: fixed; top: 20px; right: 20px;"></div>
+  <script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+  import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBQc9pn57NJrDjxj3p-LabzsK0GzI6riV0",
+    authDomain: "users-d89ac.firebaseapp.com",
+    databaseURL: "https://users-d89ac-default-rtdb.firebaseio.com",
+    projectId: "users-d89ac",
+    storageBucket: "users-d89ac.appspot.com",
+    messagingSenderId: "96489424350",
+    appId: "1:96489424350:web:127c1c9f3887dd3461094f",
+    measurementId: "G-G0RYXYGFS8"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  const auth = getAuth(app);
+
+  // Global Variables
+  let studentsData = [];
+  let teachersData = [];
+  let classesData = {};
+
+  // Check Firebase Connection
+  async function checkFirebaseConnection() {
+    try {
+      const testRef = ref(database, "test");
+      await new Promise((resolve, reject) => {
+        onValue(testRef, (snapshot) => {
+          if (snapshot.exists()) {
+            console.log("Connected to Firebase!");
+          } else {
+            console.warn("No test data found in Firebase.");
+          }
+          resolve();
+        }, reject);
+      });
+    } catch (error) {
+      console.error("Firebase connection failed:", error);
+    }
+  }
+
+  // Fetch Data from Firebase
+  document.addEventListener("DOMContentLoaded", async () => {
+    await checkFirebaseConnection();
+
+    // Fetch Classes Data
+    const classesRef = ref(database, "classes");
+    onValue(classesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        classesData = snapshot.val();
+        populateClassDropdown();
+        updateTotalClasses(Object.keys(classesData).length);
+        renderClassTable(); // Render Class Table with Student Counts
+      } else {
+        updateTotalClasses(0); // No classes found
+      }
+    });
+
+    // Fetch Students Data
+    const studentsRef = ref(database, "users");
+    onValue(studentsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        studentsData = Object.values(snapshot.val());
+        renderStudentTable();
+        renderRecentStudentTable();
+        updateTotalStudents(studentsData.length);
+      } else {
+        updateTotalStudents(0); // No students found
+      }
+    });
+
+    // Fetch Teachers Data
+    const teachersRef = ref(database, "teachers");
+    onValue(teachersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        teachersData = Object.values(snapshot.val());
+        renderTeacherTable();
+        updateTotalTeachers(teachersData.length);
+      } else {
+        updateTotalTeachers(0); // No teachers found
+      }
+    });
+
+    // Bind Event Listeners
+    bindEventListeners();
+  });
+
+  // Populate Class Dropdown
+  function populateClassDropdown() {
+    const classDropdown = document.getElementById("class");
+    classDropdown.innerHTML = '<option value="">Select Class</option>';
+    Object.entries(classesData).forEach(([key, cls]) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = cls["class name"];
+      classDropdown.appendChild(option);
+    });
+  }
+
+  // Render Student Table
+  function renderStudentTable() {
+    const tableBody = document.querySelector("#student-table tbody");
+    tableBody.innerHTML = "";
+
+    if (studentsData.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='5'>No students found.</td></tr>";
+      return;
+    }
+
+    studentsData.forEach((student) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${student["first name"]} ${student["last name"]}</td>
+        <td>${classesData[student.class]?.["class name"] || "Unknown"}</td>
+        <td>${student.gender}</td>
+        <td>${student["email-school"]}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="edit" title="Edit"><i class="fas fa-edit"></i></button>
+            <button class="delete" title="Delete" onclick="confirmDelete('${student.key}')"><i class="fas fa-trash"></i></button>
+          </div>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    // Add Search Functionality
+    addSearchFunctionality("#student-search", "#student-table tbody tr");
+  }
+
+  // Render Recent Student Table on Dashboard
+  function renderRecentStudentTable() {
+    const tableBody = document.querySelector("#recent-student-table tbody");
+    tableBody.innerHTML = "";
+
+    if (studentsData.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='3'>No students found.</td></tr>";
+      return;
+    }
+
+    const recentStudents = studentsData.slice(0, 5); // Show only the last 5 students
+    recentStudents.forEach((student) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${student["first name"]} ${student["last name"]}</td>
+        <td>${classesData[student.class]?.["class name"] || "Unknown"}</td>
+        <td>${student["email-school"]}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  // Update Total Students
+  function updateTotalStudents(count = 0) {
+    document.getElementById("total-students").textContent = count;
+  }
+
+  // Update Total Teachers
+  function updateTotalTeachers(count = 0) {
+    document.getElementById("total-teachers").textContent = count;
+  }
+
+  // Update Total Classes
+  function updateTotalClasses(count = 0) {
+    document.getElementById("total-classes").textContent = count;
+  }
+
+  // Render Class Table with Number of Students
+  function renderClassTable() {
+    const tableBody = document.querySelector("#class-table tbody");
+    tableBody.innerHTML = "";
+
+    if (Object.keys(classesData).length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='3'>No classes found.</td></tr>";
+      return;
+    }
+
+    Object.entries(classesData).forEach(([key, cls]) => {
+      const studentCount = studentsData.filter(student => student.class === key).length;
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${cls["class name"]}</td>
+        <td>${studentCount}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="edit" title="Edit"><i class="fas fa-edit"></i></button>
+            <button class="delete" title="Delete" onclick="confirmDeleteClass('${key}')"><i class="fas fa-trash"></i></button>
+          </div>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    // Add Search Functionality
+    addSearchFunctionality("#class-search", "#class-table tbody tr");
+  }
+
+  // Handle Form Submission
+  document.getElementById("modal-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const firstName = document.getElementById("first-name").value.trim();
+    const firstNameAr = document.getElementById("first-name-ar").value.trim();
+    const lastName = document.getElementById("last-name").value.trim();
+    const lastNameAr = document.getElementById("last-name-ar").value.trim();
+    const gender = document.getElementById("gender").value;
+    const classKey = document.getElementById("class").value;
+    const day = document.getElementById("day").value;
+    const mon = document.getElementById("mon").value;
+    const year = document.getElementById("year").value;
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+
+    if (!firstName || !firstNameAr || !lastName || !lastNameAr || !gender || !classKey || !day || !mon || !year) {
+      showToast("Please fill all required fields.", "error");
+      return;
+    }
+
+    // Show Loading Spinner
+    const loadingSpinner = document.getElementById("loading-spinner");
+    loadingSpinner.style.display = "block";
+
+    try {
+      // Generate School Email and Password
+      const schoolEmail = createSchoolEmail(firstName, lastName);
+      const rawPassword = generateRandomPassword();
+      const encryptedPassword = encryptPassword(rawPassword);
+
+      // Create Firebase Auth Account
+      const userCredential = await createUserWithEmailAndPassword(auth, schoolEmail, rawPassword);
+      const uid = userCredential.user.uid;
+
+      // Prepare Student Data
+      const studentData = {
+        "archive": 0,
+        "class": classKey,
+        "day": parseInt(day),
+        "mon": parseInt(mon),
+        "year": parseInt(year),
+        "email": email || null,
+        "phone": phone || null,
+        "email-id": uid,
+        "email-school": schoolEmail,
+        "first name": firstName,
+        "first name ar": firstNameAr,
+        "last name": lastName,
+        "last name ar": lastNameAr,
+        "gender": gender,
+        "password": encryptedPassword,
+        "pic": "" // Add empty picture field
+      };
+
+      // Save Student Data to Firebase Database
+      await set(ref(database, `users/${uid}`), studentData);
+
+      // Show Success Toast
+      showToast("Student added successfully!", "success");
+
+      // Hide Loading Spinner
+      loadingSpinner.style.display = "none";
+
+      // Close Modal
+      closeModal();
+
+      // Show Success Dialog
+      showSuccessDialog(schoolEmail, rawPassword);
+    } catch (error) {
+      console.error("Error adding student:", error);
+      showToast("An error occurred. Please try again.", "error");
+
+      // Hide Loading Spinner
+      loadingSpinner.style.display = "none";
+    }
+  });
+
+  // Show Success Dialog
+  function showSuccessDialog(email, password) {
+    const successDialog = document.getElementById("success-dialog");
+    document.getElementById("success-email").textContent = email;
+    document.getElementById("success-password").textContent = password;
+
+    successDialog.style.display = "flex";
+
+    document.getElementById("close-success-dialog").addEventListener("click", () => {
+      successDialog.style.display = "none";
+    });
+  }
+
+  // Show Toast Message
+  function showToast(message, type = "success") {
+    const toastContainer = document.getElementById("toast-container");
+
+    const toast = document.createElement("div");
+    toast.classList.add("toast", type);
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+  // Open Modal Function
+  function openModal(type) {
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modal-title");
+
+    if (type === "student") {
+      modalTitle.textContent = "Add New Student";
+    } else if (type === "teacher") {
+      modalTitle.textContent = "Add New Teacher";
+    } else if (type === "class") {
+      modalTitle.textContent = "Add New Class";
+    }
+
+    modal.classList.add("active");
+  }
+
+  // Close Modal Function
+  function closeModal() {
+    const modal = document.getElementById("modal");
+    modal.classList.remove("active");
+    document.getElementById("modal-form").reset();
+    document.getElementById("error-message").textContent = "";
+  }
+
+  // Dropdown Menu Toggle
+  const newButton = document.getElementById("new-button");
+  const dropdownMenu = document.getElementById("dropdown-menu");
+
+  newButton.addEventListener("click", () => {
+    dropdownMenu.classList.toggle("active");
+  });
+
+  // Close Dropdown Menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!newButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+      dropdownMenu.classList.remove("active");
+    }
+  });
+
+  // Navigation Links
+  const dashboardLink = document.getElementById("dashboard-link");
+  const studentsLink = document.getElementById("students-link");
+  const teachersLink = document.getElementById("teachers-link");
+  const classesLink = document.getElementById("classes-link");
+  const backToDashboardBtn = document.getElementById("back-to-dashboard");
+  const backToDashboardTeacherBtn = document.getElementById("back-to-dashboard-teacher");
+  const backToDashboardClassBtn = document.getElementById("back-to-dashboard-class");
+
+  const dashboardPage = document.getElementById("dashboard-page");
+  const studentListPage = document.getElementById("student-list-page");
+  const teacherListPage = document.getElementById("teacher-list-page");
+  const classListPage = document.getElementById("class-list-page");
+
+  function showDashboardPage() {
+    dashboardPage.style.display = "block";
+    studentListPage.style.display = "none";
+    teacherListPage.style.display = "none";
+    classListPage.style.display = "none";
+
+    // Animate Sidebar Transition
+    const sidebar = document.querySelector(".sidebar");
+    sidebar.style.width = "260px"; // Reset to default width
+    setTimeout(() => {
+      sidebar.classList.remove("expanded");
+    }, 300);
+  }
+
+  function showStudentListPage() {
+    dashboardPage.style.display = "none";
+    studentListPage.style.display = "block";
+    teacherListPage.style.display = "none";
+    classListPage.style.display = "none";
+
+    // Animate Sidebar Transition
+    expandSidebar();
+  }
+
+  function showTeacherListPage() {
+    dashboardPage.style.display = "none";
+    studentListPage.style.display = "none";
+    teacherListPage.style.display = "block";
+    classListPage.style.display = "none";
+
+    // Animate Sidebar Transition
+    expandSidebar();
+  }
+
+  function showClassListPage() {
+    dashboardPage.style.display = "none";
+    studentListPage.style.display = "none";
+    teacherListPage.style.display = "none";
+    classListPage.style.display = "block";
+
+    // Animate Sidebar Transition
+    expandSidebar();
+  }
+
+  dashboardLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    showDashboardPage();
+  });
+
+  studentsLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    showStudentListPage();
+  });
+
+  teachersLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    showTeacherListPage();
+  });
+
+  classesLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    showClassListPage();
+  });
+
+  backToDashboardBtn.addEventListener("click", () => {
+    showDashboardPage();
+  });
+
+  backToDashboardTeacherBtn.addEventListener("click", () => {
+    showDashboardPage();
+  });
+
+  backToDashboardClassBtn.addEventListener("click", () => {
+    showDashboardPage();
+  });
+
+  // Expand Sidebar for Morph Effect
+  function expandSidebar() {
+    const sidebar = document.querySelector(".sidebar");
+    sidebar.classList.add("expanded");
+    sidebar.style.width = "300px"; // Expanded width
+  }
+
+  // Bind Event Listeners for Modal Buttons
+  function bindEventListeners() {
+    document.getElementById("add-student-btn").addEventListener("click", () => openModal("student"));
+    document.getElementById("close-modal").addEventListener("click", closeModal);
+    document.getElementById("cancel-modal").addEventListener("click", closeModal);
+    document.getElementById("see-more-btn").addEventListener("click", () => {
+      showStudentListPage();
+    });
+    document.getElementById("export-btn").addEventListener("click", exportToCSV);
+  }
+
+  // Export to CSV Function
+  function exportToCSV() {
+    const csvRows = [
+      ["Name", "Class", "Gender", "Email"]
+    ];
+
+    studentsData.forEach((student) => {
+      const row = [
+        `${student["first name"]} ${student["last name"]}`,
+        classesData[student.class]?.["class name"] || "Unknown",
+        student.gender,
+        student["email-school"]
+      ];
+      csvRows.push(row);
+    });
+
+    const csvString = csvRows.map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "students.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Generate Random Password
+  function generateRandomPassword() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let password = "";
+    for (let i = 0; i < 10; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  }
+
+  // Encrypt Password using AES
+  function encryptPassword(password) {
+    const encryptionKey = "73Pg53Fw66Tp74Dd21Cn"; // Your encryption key
+    const encrypted = CryptoJS.AES.encrypt(password, encryptionKey).toString();
+    return encrypted;
+  }
+
+  // Create School Email
+  function createSchoolEmail(firstName, lastName) {
+    const randomNum = Math.floor(100 + Math.random() * 900); // Random 3-digit number
+    return `${firstName.charAt(0).toLowerCase()}.${lastName.toLowerCase()}${randomNum}@alsunnah.es`;
+  }
+
+  // Copy to Clipboard Function
+  function copyToClipboard(elementId) {
+    const textToCopy = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      showToast("Copied to clipboard!", "success");
+    }).catch((error) => {
+      console.error("Failed to copy text: ", error);
+      showToast("Failed to copy. Please try again.", "error");
+    });
+  }
+
+  // Add Search Functionality
+  function addSearchFunctionality(inputSelector, rowSelector) {
+    const searchInput = document.querySelector(inputSelector);
+    const rows = document.querySelectorAll(rowSelector);
+
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+
+      rows.forEach((row) => {
+        const rowData = row.textContent.toLowerCase();
+        if (rowData.includes(query)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
+  }
+</script>
+	
+</body>
+</html>
