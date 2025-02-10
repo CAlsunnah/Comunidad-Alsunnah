@@ -127,15 +127,19 @@
         <table id="student-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Class</th>
+              <th>Name (English)</th>
+              <th>Name (Arabic)</th>
               <th>Gender</th>
-              <th>Email</th>
+              <th>Date of Birth</th>
+              <th>Class</th>
+              <th>Personal Email</th>
+              <th>Phone Number</th>
+              <th>School Email</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td colspan="5">No students found.</td></tr>
+            <tr><td colspan="9">No students found.</td></tr>
           </tbody>
         </table>
       </div>
@@ -250,7 +254,7 @@
 
   <!-- Toast Messages -->
   <div id="toast-container" style="position: fixed; top: 20px; right: 20px;"></div>
-  <script type="module">
+<script type="module">
   // Import Firebase modules
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
   import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
@@ -364,22 +368,28 @@
     });
   }
 
-  // Render Student Table
+  // Render Student Table with All Details
   function renderStudentTable() {
     const tableBody = document.querySelector("#student-table tbody");
     tableBody.innerHTML = "";
 
     if (studentsData.length === 0) {
-      tableBody.innerHTML = "<tr><td colspan='5'>No students found.</td></tr>";
+      tableBody.innerHTML = "<tr><td colspan='9'>No students found.</td></tr>";
       return;
     }
 
     studentsData.forEach((student) => {
       const row = document.createElement("tr");
+      const dob = `${student.day}/${student.mon}/${student.year}`;
+      const className = classesData[student.class]?.["class name"] || "Unknown";
       row.innerHTML = `
         <td>${student["first name"]} ${student["last name"]}</td>
-        <td>${classesData[student.class]?.["class name"] || "Unknown"}</td>
+        <td>${student["first name ar"]} ${student["last name ar"]}</td>
         <td>${student.gender.charAt(0).toUpperCase() + student.gender.slice(1)}</td>
+        <td>${dob}</td>
+        <td>${className}</td>
+        <td>${student.email || "-"}</td>
+        <td>${student.phone || "-"}</td>
         <td>${student["email-school"]}</td>
         <td>
           <div class="action-buttons">
@@ -719,14 +729,20 @@
   // Export to CSV Function
   function exportToCSV() {
     const csvRows = [
-      ["Name", "Class", "Gender", "Email"]
+      ["Name (English)", "Name (Arabic)", "Gender", "Date of Birth", "Class", "Personal Email", "Phone Number", "School Email"]
     ];
 
     studentsData.forEach((student) => {
+      const dob = `${student.day}/${student.mon}/${student.year}`;
+      const className = classesData[student.class]?.["class name"] || "Unknown";
       const row = [
         `${student["first name"]} ${student["last name"]}`,
-        classesData[student.class]?.["class name"] || "Unknown",
-        student.gender.charAt(0).toUpperCase() + student.gender.slice(1), // Capitalize first letter
+        `${student["first name ar"]} ${student["last name ar"]}`,
+        student.gender.charAt(0).toUpperCase() + student.gender.slice(1),
+        dob,
+        className,
+        student.email || "-",
+        student.phone || "-",
         student["email-school"]
       ];
       csvRows.push(row);
