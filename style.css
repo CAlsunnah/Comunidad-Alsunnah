@@ -769,7 +769,7 @@ td {
 }
 
 th {
-  background: linear-gradient(135deg, #28a745, #1e7e34);
+  background: linear-gradient(135deg, #28a745, #28a745);
   color: white;
 }
 
@@ -958,4 +958,51 @@ td .action-buttons button.delete:hover {
 
 .toast.error {
   background-color: #e74a3b;
+}
+/* Custom Search Bar */
+.search-bar {
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.search-bar input[type="text"] {
+  width: 100%;
+  padding: 12px 40px 12px 15px; /* Added padding for icon spacing */
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 30px; /* Rounded corners for modern look */
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fff;
+}
+
+.search-bar input[type="text"]:focus {
+  border-color: #28a745; /* Green border on focus */
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.3); /* Subtle glow effect */
+}
+
+.search-bar i {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #aaa;
+  pointer-events: none; /* Prevent clicking on the icon */
+}
+
+.search-bar input[type="text"]::placeholder {
+  color: #aaa; /* Light gray placeholder text */
+  font-style: italic;
+}
+
+/* Hover Effect */
+.search-bar:hover input[type="text"] {
+  border-color: #28a745; /* Slight green border on hover */
+}
+
+/* Active State */
+.search-bar input[type="text"]:active {
+  border-color: #1e7e34; /* Darker green for active state */
 }

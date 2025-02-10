@@ -110,9 +110,6 @@
           </table>
         </div>
 
-        <!-- Empty Space (Will Be Replaced Later) -->
-        <div class="empty-space" style="height: 300px;"></div>
-
         <!-- Export Button -->
         <div class="export-section">
           <button class="export-btn" id="export-btn">Export to CSV</button>
@@ -212,8 +209,9 @@
 
         <label for="gender">Gender</label>
         <select id="gender" required>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
+          <option value="">Select Gender</option>
+          <option value="boy">Boy</option>
+          <option value="girl">Girl</option>
         </select>
 
         <label for="class">Class</label>
@@ -381,7 +379,7 @@
       row.innerHTML = `
         <td>${student["first name"]} ${student["last name"]}</td>
         <td>${classesData[student.class]?.["class name"] || "Unknown"}</td>
-        <td>${student.gender}</td>
+        <td>${student.gender.charAt(0).toUpperCase() + student.gender.slice(1)}</td>
         <td>${student["email-school"]}</td>
         <td>
           <div class="action-buttons">
@@ -472,13 +470,13 @@
     const firstNameAr = document.getElementById("first-name-ar").value.trim();
     const lastName = document.getElementById("last-name").value.trim();
     const lastNameAr = document.getElementById("last-name-ar").value.trim();
-    const gender = document.getElementById("gender").value;
+    const gender = document.getElementById("gender").value; // "boy" or "girl"
     const classKey = document.getElementById("class").value;
     const day = document.getElementById("day").value;
     const mon = document.getElementById("mon").value;
     const year = document.getElementById("year").value;
-    const email = document.getElementById("email").value.trim();
-    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim() || ""; // Empty string if null
+    const phone = document.getElementById("phone").value.trim() || ""; // Empty string if null
 
     if (!firstName || !firstNameAr || !lastName || !lastNameAr || !gender || !classKey || !day || !mon || !year) {
       showToast("Please fill all required fields.", "error");
@@ -506,15 +504,15 @@
         "day": parseInt(day),
         "mon": parseInt(mon),
         "year": parseInt(year),
-        "email": email || null,
-        "phone": phone || null,
+        "email": email, // Empty string if not provided
+        "phone": phone, // Empty string if not provided
         "email-id": uid,
         "email-school": schoolEmail,
         "first name": firstName,
         "first name ar": firstNameAr,
         "last name": lastName,
         "last name ar": lastNameAr,
-        "gender": gender,
+        "gender": gender, // "boy" or "girl"
         "password": encryptedPassword,
         "pic": "" // Add empty picture field
       };
@@ -728,7 +726,7 @@
       const row = [
         `${student["first name"]} ${student["last name"]}`,
         classesData[student.class]?.["class name"] || "Unknown",
-        student.gender,
+        student.gender.charAt(0).toUpperCase() + student.gender.slice(1), // Capitalize first letter
         student["email-school"]
       ];
       csvRows.push(row);
