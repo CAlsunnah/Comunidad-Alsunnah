@@ -1,1 +1,152 @@
-soon ...
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قائمة التلاميذ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    header img {
+      max-width: 150px;
+      height: auto;
+    }
+    h1 {
+      margin: 10px 0;
+    }
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .print-button {
+      margin-top: 20px;
+    }
+    .print-button button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .print-button button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img id="logo" src="" alt="شعار المؤسسة">
+    <h1 id="school-name">اسم المؤسسة</h1>
+  </header>
+  <table id="students-table">
+    <thead>
+      <tr>
+        <th>الاسم الكامل</th>
+        <th>القسم</th>
+        <th>الهاتف</th>
+        <th>البريد الإلكتروني</th>
+        <th>الجنس</th>
+        <th>سنة التسجيل</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- بيانات التلاميذ ستُضاف هنا -->
+    </tbody>
+  </table>
+  <div class="print-button">
+    <button onclick="window.print()">طباعة القائمة</button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-database.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBQc9pn57NJrDjxj3p-LabzsK0GzI6riV0",
+      authDomain: "users-d89ac.firebaseapp.com",
+      databaseURL: "https://users-d89ac-default-rtdb.firebaseio.com",
+      projectId: "users-d89ac",
+      storageBucket: "users-d89ac.appspot.com",
+      messagingSenderId: "96489424350",
+      appId: "1:96489424350:web:127c1c9f3887dd3461094f",
+      measurementId: "G-G0RYXYGFS8"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Fetch and display logo and school name
+    const infoRef = ref(database, 'info/name');
+    onValue(infoRef, (snapshot) => {
+      const data = snapshot.val();
+      document.getElementById('logo').src = data.logo;
+      document.getElementById('school-name').textContent = data.name;
+    });
+
+    // Fetch classes for mapping
+    const classesRef = ref(database, 'classes');
+    const classesMap = {};
+    onValue(classesRef, (snapshot) => {
+      snapshot.forEach((childSnapshot) => {
+        const classData = childSnapshot.val();
+        classesMap[classData.key] = classData['class name'];
+      });
+    });
+
+    // Fetch and display students
+    const usersRef = ref(database, 'users');
+    const tableBody = document.querySelector('#students-table tbody');
+    onValue(usersRef, (snapshot) => {
+      tableBody.innerHTML = ''; // Clear previous data
+      snapshot.forEach((childSnapshot) => {
+        const student = childSnapshot.val();
+
+        // Construct full name
+        const fullName = `${student['first name']} ${student['last name']}`;
+
+        // Get class name
+        const className = classesMap[student.class] || 'غير محدد';
+
+        // Check if phone is available
+        const phone = student.phone ? student.phone : 'غير متوفر';
+
+        // Create table row
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${className}</td>
+          <td>${phone}</td>
+          <td>${student['email-school']}</td>
+          <td>${student.gender}</td>
+          <td>${student.year}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    });
+  </script>
+</body>
+</html>
