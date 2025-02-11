@@ -109,11 +109,6 @@
             </tbody>
           </table>
         </div>
-
-        <!-- Export Button -->
-        <div class="export-section">
-          <button class="export-btn" id="export-btn">Export to CSV</button>
-        </div>
       </div>
 
       <!-- Student List Page -->
@@ -368,6 +363,28 @@
     });
   }
 
+  // Render Recent Student Table on Dashboard
+  function renderRecentStudentTable() {
+    const tableBody = document.querySelector("#recent-student-table tbody");
+    tableBody.innerHTML = "";
+
+    if (studentsData.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='3'>No students found.</td></tr>";
+      return;
+    }
+
+    const recentStudents = studentsData.slice(0, 5); // Show only the last 5 students
+    recentStudents.forEach((student) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${student["first name"]} ${student["last name"]}</td>
+        <td>${classesData[student.class]?.["class name"] || "Unknown"}</td>
+        <td>${student["email-school"]}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
   // Render Student Table with All Details
   function renderStudentTable() {
     const tableBody = document.querySelector("#student-table tbody");
@@ -403,28 +420,6 @@
 
     // Add Search Functionality
     addSearchFunctionality("#student-search", "#student-table tbody tr");
-  }
-
-  // Render Recent Student Table on Dashboard
-  function renderRecentStudentTable() {
-    const tableBody = document.querySelector("#recent-student-table tbody");
-    tableBody.innerHTML = "";
-
-    if (studentsData.length === 0) {
-      tableBody.innerHTML = "<tr><td colspan='3'>No students found.</td></tr>";
-      return;
-    }
-
-    const recentStudents = studentsData.slice(0, 5); // Show only the last 5 students
-    recentStudents.forEach((student) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${student["first name"]} ${student["last name"]}</td>
-        <td>${classesData[student.class]?.["class name"] || "Unknown"}</td>
-        <td>${student["email-school"]}</td>
-      `;
-      tableBody.appendChild(row);
-    });
   }
 
   // Update Total Students
@@ -723,39 +718,6 @@
     document.getElementById("see-more-btn").addEventListener("click", () => {
       showStudentListPage();
     });
-    document.getElementById("export-btn").addEventListener("click", exportToCSV);
-  }
-
-  // Export to CSV Function
-  function exportToCSV() {
-    const csvRows = [
-      ["Name (English)", "Name (Arabic)", "Gender", "Date of Birth", "Class", "Personal Email", "Phone Number", "School Email"]
-    ];
-
-    studentsData.forEach((student) => {
-      const dob = `${student.day}/${student.mon}/${student.year}`;
-      const className = classesData[student.class]?.["class name"] || "Unknown";
-      const row = [
-        `${student["first name"]} ${student["last name"]}`,
-        `${student["first name ar"]} ${student["last name ar"]}`,
-        student.gender.charAt(0).toUpperCase() + student.gender.slice(1),
-        dob,
-        className,
-        student.email || "-",
-        student.phone || "-",
-        student["email-school"]
-      ];
-      csvRows.push(row);
-    });
-
-    const csvString = csvRows.map(row => row.join(",")).join("\n");
-    const blob = new Blob([csvString], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "students.csv";
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   // Generate Random Password
