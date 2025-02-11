@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إعدادات التقرير</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    form {
+      display: inline-block;
+      text-align: right;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #2FAA4E;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #278c3e;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .checkbox-group label {
+      font-weight: normal;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>إعدادات التقرير</h1>
+  <form id="settings-form">
+    <!-- الحقول -->
+    <label for="fields">الحقول المراد عرضها (مفصولة بفواصل):</label>
+    <input type="text" id="fields" name="fields" placeholder="مثال: full_name,class,phone">
+
+    <label for="title">عنوان الورقة:</label>
+    <input type="text" id="title" name="title" placeholder="مثال: تقرير التلاميذ">
+
+    <label for="autoPrint">الطباعة التلقائية:</label>
+    <select id="autoPrint" name="autoPrint">
+      <option value="true">نعم</option>
+      <option value="false" selected>لا</option>
+    </select>
+
+    <label for="orientation">اتجاه الصفحة:</label>
+    <select id="orientation" name="orientation">
+      <option value="portrait">عمودي</option>
+      <option value="landscape">أفقي</option>
+    </select>
+
+    <label for="pageSize">حجم الصفحة:</label>
+    <select id="pageSize" name="pageSize">
+      <option value="A4">A4</option>
+      <option value="Letter">Letter</option>
+      <option value="Legal">Legal</option>
+    </select>
+
+    <label for="classFilter">تصفية حسب القسم:</label>
+    <input type="text" id="classFilter" name="classFilter" placeholder="مثال: -OHdSpxHNfOZjoEFPDlD">
+
+    <label for="showArchived">عرض التلاميذ المؤرشفين:</label>
+    <select id="showArchived" name="showArchived">
+      <option value="true">نعم</option>
+      <option value="false" selected>لا</option>
+    </select>
+
+    <label for="sortBy">ترتيب حسب:</label>
+    <input type="text" id="sortBy" name="sortBy" placeholder="مثال: full_name">
+
+    <label for="sortOrder">ترتيب تصاعدي أو تنازلي:</label>
+    <select id="sortOrder" name="sortOrder">
+      <option value="asc">تصاعدي</option>
+      <option value="desc">تنازلي</option>
+    </select>
+
+    <label for="nameLanguage">لغة الأسماء:</label>
+    <select id="nameLanguage" name="nameLanguage">
+      <option value="ar">عربي</option>
+      <option value="fr">فرنسي</option>
+    </select>
+
+    <label for="logoSize">حجم الشعار (بالبكسل):</label>
+    <input type="number" id="logoSize" name="logoSize" value="40">
+
+    <label for="showLogo">عرض الشعار:</label>
+    <select id="showLogo" name="showLogo">
+      <option value="true">نعم</option>
+      <option value="false">لا</option>
+    </select>
+
+    <label for="showSchoolName">عرض اسم المدرسة:</label>
+    <select id="showSchoolName" name="showSchoolName">
+      <option value="true">نعم</option>
+      <option value="false">لا</option>
+    </select>
+
+    <label for="excludeFields">استبعاد الحقول (مفصولة بفواصل):</label>
+    <input type="text" id="excludeFields" name="excludeFields" placeholder="مثال: archive,phone">
+
+    <label for="customCSS">تنسيق CSS مخصص:</label>
+    <textarea id="customCSS" name="customCSS" rows="3" placeholder="مثال: table { background-color: #f9f9f9; }"></textarea>
+
+    <label for="language">اللغة:</label>
+    <select id="language" name="language">
+      <option value="ar">عربي</option>
+      <option value="en">إنجليزي</option>
+    </select>
+
+    <label for="dateFormat">تنسيق التاريخ:</label>
+    <select id="dateFormat" name="dateFormat">
+      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+    </select>
+
+    <label for="includeEmptyFields">عرض الحقول الفارغة:</label>
+    <select id="includeEmptyFields" name="includeEmptyFields">
+      <option value="true">نعم</option>
+      <option value="false">لا</option>
+    </select>
+
+    <label for="highlightRows">تمييز الصفوف (التلاميذ المؤرشفين):</label>
+    <select id="highlightRows" name="highlightRows">
+      <option value="true">نعم</option>
+      <option value="false">لا</option>
+    </select>
+
+    <label for="exportType">نوع التصدير:</label>
+    <select id="exportType" name="exportType">
+      <option value="none">لا شيء</option>
+      <option value="pdf">PDF</option>
+      <option value="csv">CSV</option>
+    </select>
+
+    <label for="theme">السمة:</label>
+    <select id="theme" name="theme">
+      <option value="light">فاتح</option>
+      <option value="dark">داكن</option>
+    </select>
+
+    <!-- زر الإرسال -->
+    <button type="submit">تم</button>
+  </form>
+
+  <script>
+    // Handle form submission
+    document.getElementById('settings-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      // Collect form data
+      const formData = new FormData(event.target);
+      const params = new URLSearchParams();
+
+      // Add each field to the URL parameters
+      formData.forEach((value, key) => {
+        if (value) {
+          params.append(key, value);
+        }
+      });
+
+      // Redirect to the PDF page with the parameters
+      const pdfUrl = `https://admin-alsunnah.vercel.app/pdf.html?${params.toString()}`;
+      window.location.href = pdfUrl;
+    });
+  </script>
+</body>
+</html>

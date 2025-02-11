@@ -12,15 +12,33 @@
       text-align: center;
     }
     header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       background-color: #f4f4f4;
-      padding: 20px;
+      padding: 10px 20px;
     }
-    header img {
-      max-width: 150px;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px; /* فجوة بين الشعار واسم المدرسة */
+    }
+    .header-left img {
+      max-width: 40px; /* حجم الشعار */
       height: auto;
     }
-    h1 {
-      margin: 10px 0;
+    .header-left h1 {
+      margin: 0;
+      font-size: 20px;
+      color: #2FAA4E; /* لون اسم المدرسة */
+    }
+    .header-center {
+      text-align: center;
+      flex-grow: 1;
+    }
+    .header-center h2 {
+      margin: 0;
+      font-size: 24px;
     }
     table {
       width: 80%;
@@ -37,45 +55,57 @@
     th {
       background-color: #f2f2f2;
     }
-    .print-button {
-      margin-top: 20px;
-    }
-    .print-button button {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .print-button button:hover {
-      background-color: #0056b3;
+
+    /* تنسيقات الطباعة */
+    @media print {
+      header {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* فجوة بين الشعار واسم المدرسة في الطباعة */
+      }
+      .header-left img {
+        max-width: 30px; /* حجم الشعار في الطباعة */
+      }
+      .header-left h1 {
+        font-size: 16px; /* حجم اسم المدرسة في الطباعة */
+        color: #2FAA4E; /* لون اسم المدرسة في الطباعة */
+      }
+      .header-center {
+        display: none; /* إخفاء العنوان في الطباعة */
+      }
+      table {
+        width: 100%;
+        margin: 0;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <img id="logo" src="" alt="شعار المؤسسة">
-    <h1 id="school-name">اسم المؤسسة</h1>
+    <div class="header-left">
+      <img id="logo" src="" alt="شعار المؤسسة">
+      <h1 id="school-name">اسم المؤسسة</h1>
+    </div>
+    <div class="header-center">
+      <h2 id="page-title">عنوان الورقة</h2>
+    </div>
   </header>
   <table id="students-table">
     <thead>
-      <tr>
-        <th>الاسم الكامل</th>
-        <th>القسم</th>
-        <th>الهاتف</th>
-        <th>البريد الإلكتروني</th>
-        <th>الجنس</th>
-        <th>سنة التسجيل</th>
+      <tr id="table-header">
+        <!-- رؤوس الجدول ستُضاف ديناميكيًا -->
       </tr>
     </thead>
     <tbody>
       <!-- بيانات التلاميذ ستُضاف هنا -->
     </tbody>
   </table>
-  <div class="print-button">
-    <button onclick="window.print()">طباعة القائمة</button>
-  </div>
 
   <!-- Firebase SDK -->
   <script type="module">
@@ -99,12 +129,61 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const fieldsToShow = urlParams.get('fields')?.split(',') || ['full_name', 'class', 'phone', 'email-school', 'gender', 'year'];
+    const pageTitle = urlParams.get('title') || 'قائمة التلاميذ';
+    const autoPrint = urlParams.get('autoPrint') === 'true';
+    const orientation = urlParams.get('orientation') || 'portrait'; // portrait or landscape
+    const pageSize = urlParams.get('pageSize') || 'A4'; // A4, Letter, etc.
+    const classFilter = urlParams.get('classFilter'); // Filter by class
+    const showArchived = urlParams.get('showArchived') === 'true'; // Show archived students
+    const sortBy = urlParams.get('sortBy') || 'full_name'; // Sort by field
+    const sortOrder = urlParams.get('sortOrder') || 'asc'; // asc or desc
+    const nameLanguage = urlParams.get('nameLanguage') || 'ar'; // ar or fr
+    const logoSize = parseInt(urlParams.get('logoSize')) || 40; // Logo size in pixels
+    const showLogo = urlParams.get('showLogo') !== 'false'; // Show logo (default true)
+    const showSchoolName = urlParams.get('showSchoolName') !== 'false'; // Show school name (default true)
+    const excludeFields = urlParams.get('excludeFields')?.split(','); // Exclude specific fields
+    const customCSS = urlParams.get('customCSS'); // Custom CSS
+    const language = urlParams.get('language') || 'ar'; // Language (ar or en)
+    const dateFormat = urlParams.get('dateFormat') || 'DD/MM/YYYY'; // Date format
+    const includeEmptyFields = urlParams.get('includeEmptyFields') !== 'false'; // Include empty fields (default true)
+    const highlightRows = urlParams.get('highlightRows') === 'true'; // Highlight rows based on condition
+    const exportType = urlParams.get('exportType') || 'none'; // Export type (pdf, csv, none)
+    const theme = urlParams.get('theme') || 'light'; // Theme (light or dark)
+
+    // Apply custom CSS if provided
+    if (customCSS) {
+      const style = document.createElement('style');
+      style.innerHTML = decodeURIComponent(customCSS);
+      document.head.appendChild(style);
+    }
+
+    // Apply theme
+    if (theme === 'dark') {
+      document.body.style.backgroundColor = '#333';
+      document.body.style.color = '#fff';
+    }
+
+    // Set page title
+    document.getElementById('page-title').textContent = pageTitle;
+
     // Fetch and display logo and school name
     const infoRef = ref(database, 'info/name');
     onValue(infoRef, (snapshot) => {
       const data = snapshot.val();
-      document.getElementById('logo').src = data.logo;
-      document.getElementById('school-name').textContent = data.name;
+      if (showLogo) {
+        document.getElementById('logo').src = data.logo;
+        document.getElementById('logo').style.maxWidth = `${logoSize}px`;
+      } else {
+        document.getElementById('logo').style.display = 'none';
+      }
+      if (showSchoolName) {
+        document.getElementById('school-name').textContent = data.name;
+      } else {
+        document.getElementById('school-name').style.display = 'none';
+      }
     });
 
     // Fetch classes for mapping
@@ -119,34 +198,103 @@
 
     // Fetch and display students
     const usersRef = ref(database, 'users');
+    const tableHeader = document.querySelector('#table-header');
     const tableBody = document.querySelector('#students-table tbody');
+
     onValue(usersRef, (snapshot) => {
+      tableHeader.innerHTML = ''; // Clear previous headers
       tableBody.innerHTML = ''; // Clear previous data
+
+      // Add table headers based on fieldsToShow
+      fieldsToShow.forEach((field) => {
+        if (excludeFields && excludeFields.includes(field)) return;
+        const th = document.createElement('th');
+        let headerText = field.charAt(0).toUpperCase() + field.slice(1); // Capitalize first letter
+        if (field === 'full_name') {
+          headerText = nameLanguage === 'ar' ? 'الاسم الكامل' : 'Full Name';
+        }
+        th.textContent = headerText;
+        tableHeader.appendChild(th);
+      });
+
+      // Filter and sort students
+      const students = [];
       snapshot.forEach((childSnapshot) => {
         const student = childSnapshot.val();
 
-        // Construct full name
-        const fullName = `${student['first name']} ${student['last name']}`;
+        // Apply filters
+        if (classFilter && student.class !== classFilter) return;
+        if (!showArchived && student.archive === 1) return;
 
-        // Get class name
-        const className = classesMap[student.class] || 'غير محدد';
+        // Create full name based on language
+        student.full_name =
+          nameLanguage === 'ar'
+            ? `${student['first name ar']} ${student['last name ar']}`
+            : `${student['first name']} ${student['last name']}`;
 
-        // Check if phone is available
-        const phone = student.phone ? student.phone : 'غير متوفر';
+        students.push(student);
+      });
 
-        // Create table row
+      // Sort students
+      students.sort((a, b) => {
+        const aValue = a[sortBy] || '';
+        const bValue = b[sortBy] || '';
+        return sortOrder === 'asc'
+          ? aValue.localeCompare(bValue, 'ar')
+          : bValue.localeCompare(aValue, 'ar');
+      });
+
+      // Add table rows
+      students.forEach((student) => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${fullName}</td>
-          <td>${className}</td>
-          <td>${phone}</td>
-          <td>${student['email-school']}</td>
-          <td>${student.gender}</td>
-          <td>${student.year}</td>
-        `;
+
+        fieldsToShow.forEach((field) => {
+          if (excludeFields && excludeFields.includes(field)) return;
+          const td = document.createElement('td');
+          let value = student[field];
+
+          if (field === 'class') {
+            value = classesMap[student.class] || 'غير محدد';
+          } else if (field === 'phone' && !value) {
+            value = 'غير متوفر';
+          } else if (field === 'archive') {
+            value = value === 1 ? 'مؤرشف' : 'نشط';
+          }
+
+          // Highlight rows if needed
+          if (highlightRows && student.archive === 1) {
+            td.style.backgroundColor = '#f8d7da';
+          }
+
+          // Handle empty fields
+          if (!includeEmptyFields && !value) {
+            value = '';
+          }
+
+          td.textContent = value || '';
+          row.appendChild(td);
+        });
+
         tableBody.appendChild(row);
       });
+
+      // Auto print after 1 second
+      if (autoPrint) {
+        setTimeout(() => {
+          window.print();
+        }, 1000); // Wait 1 second before printing
+      }
     });
+
+    // Apply print settings using CSS
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @page {
+        size: ${pageSize} ${orientation};
+        margin: 0;
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 </body>
 </html>
